@@ -17,8 +17,9 @@ pubspec.yaml文件中引入,如我放在和项目同级的目录
 
 ```
 dependencies:
-  common:
-    path: ../common
+  flutter_common:
+    git:
+      url: https://github.com/jingzhanwu/flutter_common.git
 ```
 
 ### dio 初始化
@@ -71,4 +72,79 @@ class App extends StatelessWidget {
     );
   }
 }
+```
+
+### 页面中`ProviderWidget`的使用
+ProviderWidget的泛型为Provider类型
+
+```
+class AdvertListPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var title = Strings.of(context).advertListTitle;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: ProviderWidget<AdvertModel>(
+        model: AdvertModel(),
+        onModelReady: (model) => model.initData(),
+        builder: (context, model, child) {
+          if (model.isLoading) {
+            return LoadingStateWidget();
+          }
+          if (model.isEmpty) {
+            return EmptyStateWidget();
+          }
+          if (model.isError) {
+            return ErrorStateWidget(
+              error: model.pageErrorState,
+              message: '数据解析出错了',
+            );
+          }
+          return ListView.builder(
+              itemCount: model.list.length,
+              //类IOS 回弹效果，item不足一屏时，设置parent即可
+              physics: BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics()),
+              itemBuilder: (context, index) {
+                return _listItem(context, model.list[index]);
+              });
+        },
+      ),
+    );
+  }
+
+  Widget _listItem(BuildContext context, AdvertEntry ad) {
+    return Ink(
+      color: Colors.white,
+      child: InkWell(
+        onTap: () {
+          showToast("当前id=${ad.id}");
+        },
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("广告id：${ad.id}"),
+                  Text(
+                    "链接：${ad.adLink}",
+                    style: TextStyle(
+                        fontSize: 12.0, color: Theme.of(context).hintColor),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 0.7),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 ```
