@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   //dio初始化
-  test('init dio', () {
-    initDio(baseUrl: "http://baidu.com");
+  test('init dio', () async {
+    initDio(baseUrl: "https://www.wanandroid.com/");
   });
 }
